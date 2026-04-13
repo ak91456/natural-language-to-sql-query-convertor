@@ -39,7 +39,7 @@ Ask your PostgreSQL database questions in plain English. QueryMind converts them
 **1. Clone and install dependencies**
 ```bash
 git clone <repo-url>
-cd natural-language-to-sql-query-convertor/query
+cd natural-language-to-sql-query-convertor
 pip install django psycopg2-binary transformers torch django-environ
 ```
 
