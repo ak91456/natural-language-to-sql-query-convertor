@@ -1,0 +1,65 @@
+# ── Claude Code ──
+CLAUDE.md
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# ── Virtual environments ──
+.venv/
+venv/
+env/
+ENV/
+.env/
+
+# ── Environment variables ──
+.env
+*.env
+.env.local
+.env.*.local
+
+# ── Django ──
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# ── HuggingFace model cache ──
+# Models are downloaded automatically — no need to commit them
+.cache/
+~/.cache/huggingface/
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE / editors ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Testing ──
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/

@@ -1,56 +1,69 @@
-# query_app/model_utils.py
+import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
+MODEL_NAME = "NumbersStation/nsql-350M"
+
+
 class SQLModel:
+    """
+    Thin wrapper around nsql-350M.
+
+    Alternatives (swap MODEL_NAME above):
+      - "NumbersStation/nsql-6B"         — much more accurate, needs ~12 GB VRAM
+      - "NumbersStation/nsql-llama-2-7B" — Llama-2 based, needs ~14 GB VRAM
+      - "defog/sqlcoder-7b-2"            — state-of-the-art open source
+    For best accuracy with no local GPU, use the Claude or OpenAI API instead.
+    """
+
+    _instance = None
+
     def __init__(self):
-        # Load the tokenizer and model
-        self.tokenizer = AutoTokenizer.from_pretrained("NumbersStation/nsql-350M")
-        self.model = AutoModelForCausalLM.from_pretrained("NumbersStation/nsql-350M")
+        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        self.model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+        self.model.eval()
 
-    def generate_sql(self, natural_language_query, db_name, table_name):
-        # Construct the input text for the model
-        text = f"""
-        CREATE TABLE stadium (
-            stadium_id number,
-            location text,
-            name text,
-            capacity number,
-            highest number,
-            lowest number,
-            average number
-        )
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
 
-        CREATE TABLE singer (
-            singer_id number,
-            name text,
-            country text,
-            song_name text,
-            song_release_year text,
-            age number,
-            is_male others
-        )
+    def _build_schema_sql(self, schema):
+        parts = []
+        for table, columns in schema.items():
+            col_defs = ",\n    ".join(f"{col} {dtype}" for col, dtype in columns)
+            parts.append(f"CREATE TABLE {table} (\n    {col_defs}\n)")
+        return "\n\n".join(parts)
 
-        CREATE TABLE concert (
-            concert_id number,
-            concert_name text,
-            theme text,
-            stadium_id text,
-            year text
-        )
-
-        CREATE TABLE singer_in_concert (
-            concert_id number,
-            singer_id text
-        )
-
-        -- Using valid SQLite, answer the following questions for the tables provided above.
-
-        -- {natural_language_query}
+    def generate_sql(self, natural_language_query, schema):
         """
+        Generate a SQL SELECT query from a natural language question.
 
-        input_ids = self.tokenizer(text, return_tensors="pt").input_ids
+        schema: {table_name: [(col_name, data_type), ...]}
+        Returns the generated SQL string.
+        """
+        schema_sql = self._build_schema_sql(schema)
+        # nsql models expect the prompt to end with SELECT so they complete it.
+        prompt = (
+            f"{schema_sql}\n\n"
+            f"-- Using valid PostgreSQL, answer the following question "
+            f"for the tables provided above.\n\n"
+            f"-- {natural_language_query}\n"
+            f"SELECT"
+        )
 
-        # Generate SQL query
-        generated_ids = self.model.generate(input_ids, max_length=500)
-        sql_query = self.tokenizer.decode(generated_ids[0], skip_special_tokens=True)
-        return sql_query
+        input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids
+
+        with torch.no_grad():
+            generated_ids = self.model.generate(
+                input_ids,
+                max_new_tokens=256,
+                num_beams=4,
+                early_stopping=True,
+                pad_token_id=self.tokenizer.eos_token_id,
+            )
+
+        # Decode only the newly generated tokens (everything after the prompt).
+        new_tokens = generated_ids[0][input_ids.shape[1]:]
+        completion = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
+        return ("SELECT" + completion).strip()

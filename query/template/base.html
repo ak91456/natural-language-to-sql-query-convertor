@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}QueryMind{% endblock %}</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+  <style>
+    /* ══════════════════════════════════════════
+       THEME TOKENS
+    ══════════════════════════════════════════ */
+    :root {
+      --green:   #00e676;
+      --green-d: #00b058;
+      --blue:    #2979ff;
+      --blue-d:  #1a5eff;
+      --red:     #ff1744;
+      --red-d:   #cc0030;
+      --purple:  #aa00ff;
+
+      --transition: 0.3s cubic-bezier(.4,0,.2,1);
+    }
+
+    [data-theme="dark"] {
+      --bg:        #0a0a0f;
+      --bg2:       #111119;
+      --bg3:       #17171f;
+      --bg4:       #1e1e28;
+      --border:    #252533;
+      --border2:   #2e2e3f;
+      --text:      #e8e8f5;
+      --text2:     #9090aa;
+      --text3:     #5a5a70;
+      --shadow:    rgba(0,0,0,0.6);
+      --glow-g:    rgba(0,230,118,0.15);
+      --glow-b:    rgba(41,121,255,0.15);
+      --glow-r:    rgba(255,23,68,0.15);
+      --user-bubble: #0f2027;
+      --ai-bubble:   #0d0d16;
+    }
+
+    [data-theme="light"] {
+      --bg:        #f0f0f8;
+      --bg2:       #ffffff;
+      --bg3:       #f8f8ff;
+      --bg4:       #ededf8;
+      --border:    #d8d8ec;
+      --border2:   #c8c8e0;
+      --text:      #12121e;
+      --text2:     #55556a;
+      --text3:     #9090a8;
+      --shadow:    rgba(0,0,0,0.12);
+      --glow-g:    rgba(0,140,70,0.1);
+      --glow-b:    rgba(41,121,255,0.1);
+      --glow-r:    rgba(200,0,40,0.1);
+      --user-bubble: #e8f5e9;
+      --ai-bubble:   #ffffff;
+    }
+
+    /* ══════════════════════════════════════════
+       RESET & BASE
+    ══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background var(--transition), color var(--transition);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', sans-serif; }
+    code, pre, .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* ══════════════════════════════════════════
+       SCROLLBAR
+    ══════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+    /* ══════════════════════════════════════════
+       UTILITY
+    ══════════════════════════════════════════ */
+    .c-green  { color: var(--green) !important; }
+    .c-blue   { color: var(--blue) !important; }
+    .c-red    { color: var(--red) !important; }
+    .c-muted  { color: var(--text2) !important; }
+
+    .glow-green { box-shadow: 0 0 20px var(--glow-g); }
+    .glow-blue  { box-shadow: 0 0 20px var(--glow-b); }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% block content %}{% endblock %}
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+  <script>
+    // ── Theme toggle ──
+    const THEME_KEY = 'qm-theme';
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem(THEME_KEY, t);
+      document.querySelectorAll('.theme-icon').forEach(el => {
+        el.className = 'theme-icon fas ' + (t === 'dark' ? 'fa-sun' : 'fa-moon');
+      });
+    }
+    function toggleTheme() {
+      const cur = document.documentElement.getAttribute('data-theme');
+      applyTheme(cur === 'dark' ? 'light' : 'dark');
+    }
+    // Apply saved theme immediately
+    const saved = localStorage.getItem(THEME_KEY) || 'dark';
+    applyTheme(saved);
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

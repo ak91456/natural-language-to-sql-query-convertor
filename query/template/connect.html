@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+{% block title %}Connect — QueryMind{% endblock %}
+
+{% block extra_css %}
+<style>
+  body { overflow: hidden; }
+
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100vh;
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    position: relative;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4rem;
+    overflow: hidden;
+  }
+
+  /* animated neon grid background */
+  .left-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,230,118,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,230,118,.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridMove 20s linear infinite;
+  }
+  @keyframes gridMove {
+    0%   { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+  }
+
+  /* glowing orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: .35;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+  .orb-1 { width: 300px; height: 300px; background: var(--green);  top: -80px;  left: -80px;  animation-delay: 0s; }
+  .orb-2 { width: 200px; height: 200px; background: var(--blue);   bottom: 60px; right: -40px; animation-delay: -3s; }
+  .orb-3 { width: 150px; height: 150px; background: var(--purple); top: 50%;    left: 60%;    animation-delay: -5s; }
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(20px, -20px) scale(1.05); }
+    66%       { transform: translate(-15px, 15px) scale(.97); }
+  }
+
+  .left-content { position: relative; z-index: 1; }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 2.5rem;
+  }
+  .brand-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--green), var(--blue));
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: #000;
+    box-shadow: 0 0 30px var(--glow-g);
+  }
+  .brand-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -.03em;
+  }
+  .brand-name span { color: var(--green); }
+
+  .hero-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.04em;
+    color: var(--text);
+    margin-bottom: 1.2rem;
+  }
+  .hero-title .hl-green { color: var(--green); }
+  .hero-title .hl-blue  { color: var(--blue); }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--text2);
+    line-height: 1.7;
+    max-width: 400px;
+    margin-bottom: 2.5rem;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: .75rem; }
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    font-size: .875rem;
+    color: var(--text2);
+  }
+  .feature-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    background: var(--bg2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    border-left: 1px solid var(--border);
+    position: relative;
+  }
+
+  .theme-btn-corner {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 38px; height: 38px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: .9rem;
+    transition: all var(--transition);
+  }
+  .theme-btn-corner:hover { color: var(--green); border-color: var(--green); box-shadow: 0 0 12px var(--glow-g); }
+
+  .form-card {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .form-heading {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: .4rem;
+    letter-spacing: -.03em;
+  }
+  .form-sub {
+    font-size: .875rem;
+    color: var(--text2);
+    margin-bottom: 2rem;
+  }
+
+  .field-group { margin-bottom: 1.1rem; }
+  .field-label {
+    display: block;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text2);
+    margin-bottom: .4rem;
+  }
+  .field-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: .7rem 1rem;
+    font-size: .9rem;
+    font-family: 'Inter', sans-serif;
+    transition: all var(--transition);
+    outline: none;
+  }
+  .field-input:focus {
+    border-color: var(--green);
+    background: var(--bg4);
+    box-shadow: 0 0 0 3px var(--glow-g);
+  }
+  .field-input::placeholder { color: var(--text3); }
+
+  .row-2 { display: grid; grid-template-columns: 2fr 1fr; gap: .75rem; }
+
+  .error-box {
+    background: var(--glow-r);
+    border: 1px solid rgba(255,23,68,.3);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    color: var(--red);
+    font-size: .825rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .btn-connect {
+    width: 100%;
+    padding: .85rem;
+    background: linear-gradient(135deg, var(--green), #00c853);
+    color: #000;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    transition: all var(--transition);
+    margin-top: 1.5rem;
+    letter-spacing: -.01em;
+  }
+  .btn-connect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,230,118,.4);
+  }
+  .btn-connect:active { transform: translateY(0); }
+
+  /* responsive */
+  @media (max-width: 768px) {
+    .split { grid-template-columns: 1fr; }
+    .left-panel { display: none; }
+    .right-panel { border-left: none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="split">
+
+  <!-- LEFT -->
+  <div class="left-panel">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="left-content">
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div class="brand-name">Query<span>Mind</span></div>
+      </div>
+
+      <h1 class="hero-title">
+        Talk to your<br/>
+        <span class="hl-green">database</span> in<br/>
+        <span class="hl-blue">plain English</span>
+      </h1>
+
+      <p class="hero-sub">
+        Connect your PostgreSQL database and ask questions naturally.
+        QueryMind converts them to SQL and executes instantly.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-dot" style="background:var(--green);box-shadow:0 0 6px var(--green);"></div>
+          <span>AI-powered natural language to SQL conversion</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot" style="background:var(--blue);box-shadow:0 0 6px var(--blue);"></div>
+          <span>Live schema introspection — no manual setup</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot" style="background:var(--purple);box-shadow:0 0 6px var(--purple);"></div>
+          <span>Dashboard &amp; Excel result views</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-dot" style="background:var(--red);box-shadow:0 0 6px var(--red);"></div>
+          <span>Full conversation history per session</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+    <button class="theme-btn-corner" onclick="toggleTheme()" title="Toggle theme">
+      <i class="theme-icon fas fa-sun"></i>
+    </button>
+
+    <div class="form-card">
+      <h2 class="form-heading">Connect database</h2>
+      <p class="form-sub">Enter your PostgreSQL credentials to begin.</p>
+
+      {% if form.non_field_errors %}
+      <div class="error-box">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        {{ form.non_field_errors.0 }}
+      </div>
+      {% endif %}
+
+      <form method="post" autocomplete="off">
+        {% csrf_token %}
+
+        <div class="field-group">
+          <label class="field-label">Database Name</label>
+          <input class="field-input" type="text" name="db_name"
+                 value="{{ form.db_name.value|default:'' }}"
+                 placeholder="my_database" required />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Username</label>
+          <input class="field-input" type="text" name="db_user"
+                 value="{{ form.db_user.value|default:'' }}"
+                 placeholder="postgres" required />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Password</label>
+          <input class="field-input" type="password" name="db_password"
+                 placeholder="••••••••" required />
+        </div>
+
+        <div class="row-2">
+          <div class="field-group">
+            <label class="field-label">Host</label>
+            <input class="field-input" type="text" name="db_host"
+                   value="{{ form.db_host.value|default:'localhost' }}"
+                   placeholder="localhost" required />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Port</label>
+            <input class="field-input" type="number" name="db_port"
+                   value="{{ form.db_port.value|default:'5432' }}"
+                   placeholder="5432" required />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-connect">
+          <i class="fa-solid fa-plug"></i> Connect &amp; Start
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
