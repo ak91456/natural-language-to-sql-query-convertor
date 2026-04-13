@@ -30,7 +30,6 @@ Ask your PostgreSQL database questions in plain English. QueryMind converts them
 | Database (sessions) | SQLite |
 | Target Database | PostgreSQL (user-supplied at runtime) |
 | DB Driver | psycopg2 |
-| Frontend | Bootstrap 5, Prism.js, vanilla JS |
 
 ---
 
